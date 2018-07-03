@@ -1,0 +1,85 @@
+#define XMRES 204.8
+#define XOFF  P(4900+1)
+#define YMRES 204.8
+#define YOFF  P(4900+2)
+
+
+
+;I5287=10      ; Acceleration
+;I5288=50     ; scurve
+;I5289=100    ; feedrate
+
+I5213=10      ; segmentation time
+I5220=50      ; lookahead
+I5250=1       ; enable
+&2 Undefine All
+
+&2 Open FORWARD Clear
+
+If (M145=1 AND M245=1)    ; Properly position referenced?
+  Q7 = P1 / XMRES
+  Q8 = P2 / YMRES
+Else
+  M5282=1     ; Motors not referenced
+EndIf
+
+Close
+
+
+
+&2 Open INVERSE Clear
+
+P1 = Q7 * XMRES
+P2 = Q8 * YMRES
+
+Close
+
+
+
+&2 #1->I #2->I
+
+
+; Move motors to desired position
+Open PROG 10 Clear
+LINEAR
+ABS
+
+FRAX(X,Y)
+
+X(Q77)Y(Q78)
+Dwell 0
+
+Close
+
+
+
+
+
+
+I5313=10      ; segmentation time
+I5320=50      ; lookahead
+I5350=1       ; enable
+
+&3 Undefine All
+
+&3 Open FORWARD Clear
+
+If (M545=1 AND M645=1)    ; Properly position referenced?
+  Q7 = P5 / XMRES
+  Q8 = P6 / YMRES
+Else
+  M5382=1     ; Motors not referenced
+EndIf
+
+Close
+
+
+
+&3 Open INVERSE Clear
+
+P5 = Q7 * XMRES
+P6 = Q8 * YMRES
+
+Close
+
+&3 #5->I #6->I

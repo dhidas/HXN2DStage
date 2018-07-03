@@ -1,0 +1,95 @@
+#define MYRES 204.8
+
+
+;&2 Undefine All
+;&2
+;#1->204.8X
+;#2->204.8Y
+
+OPEN PROG 11 Clear
+
+P1110 = 1 ; Scan in progress
+
+Abs
+Linear
+TA10
+TM2000
+TS0
+
+
+
+P1107 = ((P1101 - P1100) / P1104 ) * P1106 * MYRES
+F(P1107/MYRES)          ; feedrate = ((P1101 - P1100) / P1104 ) * P1106 and correct for units/mres
+
+; P1100 - starting X position
+; P1101 - Stopping X Position
+; P1102 - starting Y position
+; P1103 - Stopping Y Position
+; P1104 - NX
+; P1105 - NY
+; P1106 - Trigger Rate
+
+
+; Starting positions, ending positions, npoints
+Q101 = P1100 * MYRES    ; Starting X position
+Q102 = P1102 * MYRES    ; Starting Y position
+
+Q103 = MYRES * (P1101 - P1100) / (P1104 - 1)    ; X step size
+Q104 = MYRES * (P1103 - P1102) / (P1105 - 1)    ; Y step size
+
+Q105 = Q103 / 5   ; X Trigger size
+Q106 = Q104 / 5   ; Y Trigger size
+
+Q107 = P1101 * MYRES    ; Stopping X position
+Q108 = P1103 * MYRES    ; Stopping Y position
+
+RAPID X ((Q101 - Q105)/MYRES) Y (Q102/MYRES)     ; Starting position
+Dwell 100  ; Pause before moving
+
+; Attempt to avoid a trigger in beginning (but not guaranteed)
+M508 = 999999999          ; Compare position A
+M509 = 999999999          ; Compare position B
+M510 = 0                  ; Auto-increment distance
+M512 = 0                  ; Starting state
+M511 = 1                  ; Forcing starting state
+
+M608 = Q102 + Q104/2 - Q106/2   ; Compare position A
+M609 = Q102 - Q104/2 + Q106/2   ; Compare position B
+M610 = Q104                     ; Auto-increment distance
+M612 = 0                        ; Starting state
+M611 = 1                        ; Forcing starting state
+
+Dwell 10
+
+Q110 = M501+Q105
+Q111 = Q110+Q105-Q103
+
+While (Q102 < Q108 + Q104/2)
+  RAPID X ((Q101 - Q105)/MYRES) Y (Q102/MYRES) ; <LF> (return to starting X at new Y)
+  Dwell 1000
+
+  M508 = Q110                 ; Compare position A
+  M509 = Q111                 ; Compare position B
+  M510 = Q103                 ; Auto-increment distance
+  M512 = 0                    ; Starting state
+  M511 = 1                    ; Forcing starting state
+  Dwell 10
+
+  LINEAR X ((Q107 + Q103/2)/MYRES) Y (Q102/MYRES)      ; Scan across X
+  Dwell 100
+  M508 = 2*Q107               ; Compare position A
+  M509 = 2*Q107               ; Compare position B
+  M510 = 0                    ; Auto-increment distance
+  M512 = 0                    ; Starting state
+  M511 = 1                    ; Forcing starting state
+  Dwell 10
+
+  Q102 = Q102 + Q104              ; Increment Q2 to for next Y value
+
+  RAPID X ((Q107 + Q103/2)/MYRES) Y (Q102/MYRES)      ; <CR><LF> (return to starting X at new Y)
+  Dwell 0
+EndWhile
+
+P1110 = 0  ; Scan finished
+Close
+

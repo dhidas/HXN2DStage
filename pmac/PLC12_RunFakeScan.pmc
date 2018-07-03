@@ -1,0 +1,19 @@
+
+
+Open PLC 12 Clear
+
+CMD"#5hmzj/#6hmzj/"
+I5711 = 100 * 8388608/I10 While(I5711 > 0)EndW
+
+if (M545=1)
+and (M645=1)
+
+  CMD "&3B11R"
+  I5711 = 20 * 8388608/I10 While(I5711 > 0)EndW
+endif
+
+disable plc 12
+close
+
+
+

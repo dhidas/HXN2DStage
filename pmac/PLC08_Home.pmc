@@ -1,0 +1,232 @@
+
+; Homing State P Variable
+P800 = 0
+
+; Homing status
+P801 = 0
+
+
+Open PLC 8 Clear
+
+; Homing State P Variable
+P800 = 0
+
+; Set homing state variable to 1 for "homing"
+P801 = 1
+
+;Save the low soft limits to P variables
+P810=I114       ; soft limits
+P811=I214       ; soft limits
+P812=I7012      ; home against
+P813=I7022      ; home against
+
+P814=I7013      ; home against
+P815=I7023      ; home against
+P816=I123       ; home direction and speed
+P817=I223       ; home direction and speed
+P818=I126       ; home offset
+P819=I226       ; home offset
+
+P820=I124       ; Flags
+P821=I224       ; Flags
+
+;Clear the soft limits
+I114=0          ; Ignore soft limits
+I214=0          ; ignore soft limits
+I7012=2         ; Capture on high
+I7022=2         ; Capture on high
+I7013=2         ; Home #1 against the negative limit
+I7023=2         ; Home #2 against the negative limit
+I123=-ABS(I123) ; Set negative home direction
+I223=-ABS(I223) ; Set negative home direction
+I126=0    ; Home offset
+I226=0    ; Home offset
+I124=$820401    ; Home flag temporarily ignore limits for phasing
+I224=$820401    ; Home flag temporarily ignore limits for phasing
+
+
+
+CMD"#1$"
+CMD"#2$"
+CMD"#5$"
+CMD"#6$"
+I5511 = 200 * 8388608/I10 While(I5511 > 0)EndW
+
+
+I124=P820       ; Flags
+I224=P821       ; Flags
+
+
+
+if (P801=1)
+
+  M145=0    ; Clear home complete bit
+  M245=0    ; Clear home complete bit
+
+
+
+
+  ; Move towards the positive limit
+  if (P801=1)
+    CMD "#1j:200000#2j:200000"    ; Jog motors slightly in positive direction
+    I5511 = 20 * 8388608/I10 ; Small delay to start moving
+    while (I5511 > 0)
+    endw
+
+    I5511 = 60000 * 8388608/I10 ; Now start checking the conditions
+    while (M140=0) ; At least one motor should not be In Position
+    and (M142=0) ; No following errors should be set for any motor
+    and (I5511 > 0) ; Check for timeout
+    and (P801 = 1) ; Check that we didn't abort
+    endw
+
+    while (M240=0) ; At least one motor should not be In Position
+    and (M242=0) ; No following errors should be set for any motor
+    and (I5511 > 0) ; Check for timeout
+    and (P801 = 1) ; Check that we didn't abort
+    endw
+
+
+    ; Check why we left the while loop
+    if (M142=1) ; If a motor hit a following error
+    or (M242=1)
+      P801 = 4
+    endif
+    if (I5511<0 or I5511=0) ; If we timed out
+      P801 = 31
+    endif
+  endif
+
+  ;---- Homing State ----
+  if (P801=1)
+    CMD "#1j- #2j-"    ; Home both motors
+    ; Wait for the move to complete
+    I5511 = 20 * 8388608/I10 ; Small delay to start moving
+    while (I5511 > 0)
+    endw
+
+    ; Time for home timeout
+    I5511 = 60000 * 8388608/I10
+
+    while (M140=0) ; At least one motor should not be In Position
+    and (M142=0) ; No following errors should be set for any motor
+    and (I5511 > 0) ; Check for timeout
+    and (P801 = 1) ; Check that we didn't abort
+    endw
+
+    while (M240=0) ; At least one motor should not be In Position
+    and (M242=0) ; No following errors should be set for any motor
+    ;and (I5511 > 0) ; Check for timeout
+    and (P801 = 1) ; Check that we didn't abort
+    endw
+
+    ; Check why we left the while loop
+    if (M142=1) ; If a motor hit a following error
+    or (M242=1)
+      P801 = 4
+    endif
+    if (I5511<0 or I5511=0) ; If we timed out
+      P801 = 32
+    endif
+  endif
+
+
+  ;---- PostHomeMove State ----
+  if (P801=1)
+
+    ; Wait for the move to complete
+    I5511 = 1000 * 8388608/I10 ; Small delay to start moving
+    while (I5511 > 0)
+    endw
+
+    CMD"#1j:200000 #2j:200000"
+
+    ; Wait for the move to complete
+    I5511 = 20 * 8388608/I10 ; Small delay to start moving
+    while (I5511 > 0)
+    endw
+
+    I5511 = 60000 * 8388608/I10 ; Now start checking the conditions
+    while (M140=0) ; At least one motor should not be In Position
+    and (M142=0) ; No following errors should be set for any motor
+    and (M130=0) ; Should not stop on position limit for selected motors
+    and (I5511 > 0) ; Check for timeout
+    and (P801 = 1) ; Check that we didn't abort
+    endw
+
+    while (M240=0) ; At least one motor should not be In Position
+    and (M242=0) ; No following errors should be set for any motor
+    and (M230=0) ; Should not stop on position limit for selected motors
+    and (I5511 > 0) ; Check for timeout
+    and (P801 = 1) ; Check that we didn't abort
+    endw
+
+
+    ; Check why we left the while loop
+    if (M142=1) ; If a motor hit a following error
+    or (M242=1)
+      P801 = 4
+    endif
+    if (M130=1) ; If a motor hit a limit
+    or (M230=1)
+      P801 = 5
+    endif
+    if (I5511<0 or I5511=0) ; If we timed out
+      P801 = 33
+    endif
+  endif
+endif
+
+;---- Done ----
+if (P801 = 1)
+  ;If we've got this far without failing, set status and state done
+  P801=0
+  P800=7
+endif
+
+
+;---- Tidy Up ----
+;Stop all motors if they don't have a following error
+if (M142=0)
+  CMD"#1hmz #5hmz"
+  I5511 = 20 * 8388608/I10 ; Small delay to start moving
+  while (I5511 > 0)
+  endw
+  ;cmd "#1J/"
+  ;I5511 = 20 * 8388608/I10 ; Small delay to start moving
+  ;while (I5511 > 0)
+  ;endw
+endif
+if (M242=0)
+  CMD"#2hmz #6hmz"
+  I5511 = 20 * 8388608/I10 ; Small delay to start moving
+  while (I5511 > 0)
+  endw
+  ;cmd "#2J/"
+  ;I5511 = 20 * 8388608/I10 ; Small delay to start moving
+  ;while (I5511 > 0)
+  ;endw
+endif
+
+I5511 = 500 * 8388608/I10 ; Small delay to start moving
+while (I5511 > 0)
+endw
+
+;Restore the low soft limits from P variables Pxx20..x35
+I114=P810
+
+I114 = P810
+I214 = P811
+I7012= P812
+I7022= P813
+I7013= P814
+I7023= P815
+I123 = P816
+I223 = P817
+I126 = P818
+I226 = P819
+
+
+
+Dis PLC 8
+Close

@@ -1,0 +1,31 @@
+// This PLC sets all motors to stepper configuration.  I5 must be set to run
+// this on startup
+
+Open PLC 1 Clear
+
+// Disable all other PLCs, and kill motors DIS PLC 0
+DIS PLCC 0..31
+DIS PLC 2..31
+CMD^K
+
+// Axis 1 Settings
+CMD"WX:$78014,$F8CDFE" ; Select axis # and set motor mode (Stepper)
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F84DFE" ; Clear error(s) on selected axis in stepper mode
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F00DFE" ; Save and write protect channel from strobe word
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+
+// Axis 2 Settings
+CMD"WX:$78014,$F9CDFE" ; Select axis # and set motor mode (Stepper)
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F94DFE" ; Clear error(s) on selected axis in stepper mode
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F10DFE" ; Save and write protect channel from strobe word
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+Dis PLC 1
+
+Enable PLC 5
+Enable PLC 17
+Enable PLC 18
+Close

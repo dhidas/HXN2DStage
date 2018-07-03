@@ -1,0 +1,45 @@
+#define XMOVE P(4700+1)
+#define YMOVE P(4700+2)
+
+
+
+; Position reporting PLC for coordinate system 2
+Open PLC 17 Clear
+
+ADDRESS&2
+
+If (XMOVE=1) or (YMOVE=1)
+  XMOVE=0
+  YMOVE=0
+  Q77 = Q87
+  Q78 = Q88
+EndIf
+Q87 = M162 / (I108*32) / XMRES
+Q88 = M262 / (I208*32) / YMRES
+
+
+Close
+
+
+
+#define XMOVE P(4700+5)
+#define YMOVE P(4700+6)
+
+
+
+; Position reporting PLC for coordinate system 2
+Open PLC 18 Clear
+
+ADDRESS&3
+
+If (XMOVE=1) or (YMOVE=1)
+  XMOVE=0
+  YMOVE=0
+  Q77 = Q87
+  Q78 = Q88
+EndIf
+Q87 = M562 / (I508*32) / XMRES
+Q88 = M662 / (I608*32) / YMRES
+
+
+Close

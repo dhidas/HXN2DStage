@@ -1,0 +1,22 @@
+#include "IVariables.pmc"
+#include "MVariables.pmc"
+#include "QVariables.pmc"
+#include "PLC01_Setup.pmc"
+#include "PLC05_CPU.pmc"
+#include "PLC08_Home.pmc"
+#include "PLC11_RunScan.pmc"
+#include "PLC12_RunFakeScan.pmc"
+#include "PROG10_XYMove.pmc"
+#include "PROG11_XYScan.pmc"
+#include "PLC17_PositionReporting.pmc"
+
+#include "PLC20_Test.pmc"
+
+
+P1100=100
+P1101=500
+P1102=100
+P1103=500
+P1104=5
+P1105=3
+P1106=5

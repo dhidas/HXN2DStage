@@ -1,0 +1,17 @@
+Open PLC 20 Clear
+
+CMD"#1$#2$#5$#6$"
+I6111 = 20 * 8388608/I10
+while (I6111 > 0) endw
+
+CMD"#1hmz#2hmz#5hmz#6hmz"
+I6111 = 20 * 8388608/I10
+while (I6111 > 0) endw
+
+CMD"#1j/#2j/#5j/#6j/"
+I6111 = 20 * 8388608/I10
+while (I6111 > 0) endw
+
+Disable PLC 20
+
+Close

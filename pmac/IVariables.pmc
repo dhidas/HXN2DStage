@@ -1,0 +1,327 @@
+I5=3   ; let PLCs run
+
+
+; Calulation of motor time constant for PKP233D08B
+; tau = Inductance / Resistance; PWM > 20 / (2 pi tau)
+; 20/(3.14*2*(.0056/5.4)) = 3070.9736
+
+
+
+; Recommended clock Frequencies
+;I7100=1473     ; Servo IC1 Max Phase/PWM Frequency Control
+;I7101=3        ; Servo IC1 Phase Clock Frequency Control
+;I7102=1        ; Servo IC1 Servo Clock Frequency Control
+
+I7000=1473      ; Servo IC0 Max Phase/PWM Frequency Control
+I7001=3         ; Servo IC0 Phase Clock Frequency Control
+I7002=1         ; Servo IC0 Servo Clock Frequency Control
+
+I10=1677653     ; Servo Interrupt Time
+
+
+
+// Channels 5-8 PFM Clock Settings
+;I7103=2290         ; Servo IC 1 PFM Clock divider equal to 6
+I7103=2242          ; Servo IC 1 PFM Clock divider equal to 6
+;I7104=13           ; Servo IC 1 PFM Pulse Width Control equal to 13
+I7104=1             ; Servo IC 1 PFM Pulse Width Control equal to 13
+I569,4,100=30427    ; Output Command Limit
+
+// Channels 1-4 Output Mode Select, Encoder/Decode
+I7116,4,10=3      ; Servo IC 1, Channels 1-4 Output Mode Select to PFM
+I7110,4,10=8      ; Servo IC 1, Channels 5-8 Encoder Decode, Internal Pulse and Direction
+
+// Channels 5-8 Command Output Register
+I502=$78104       ; Channel 5, PFM
+I602=$7810C       ; Channel 6, PFM
+I702=$78114       ; Channel 7, PFM
+I802=$7811C       ; Channel 8, PFM
+
+
+; Clock calculations
+I15=0                         ; Trigonometric calculation in degrees
+#define MaxPhaseFreq    P8000 ; Max Phase Clock [KHz]
+#define PWMClk          P8001 ; PWM Clock [KHz]
+#define PhaseClk        P8002 ; Phase Clock [KHz]
+#define ServoClk        P8003 ; Servo Clock [KHz]
+
+MaxPhaseFreq=117964.8/(2*I7000+3)
+PWMClk=117964.8/(4*I7000+6)
+PhaseClk=MaxPhaseFreq/(I7001+1)
+ServoClk=PhaseClk/(I7002+1)
+
+
+
+
+
+; Encoder conversion table setup
+I8000=$6800BF      ; Parallel read of Y/X:$BF
+I8001=$18018       ; Use 24 bits starting at X bit 0
+I8002=$EC0001      ; Integrate result from I8001
+I8003=$68013F      ; Parallel read of Y/X:$13F
+I8004=$18018       ; Use 24 bits starting at X bit 0
+I8005=$EC0004      ; Integrate result from I8004
+I8006=$6801BF      ; Parallel read of Y/X:$1BF
+I8007=$18018       ; Use 24 bits starting at X bit 0
+I8008=$EC0007      ; Integrate result from I8007
+I8009=$68023F      ; Parallel read of Y/X:$23F
+I8010=$18018       ; Use 24 bits starting at X bit 0
+I8011=$EC000A      ; Integrate result from I8010
+
+// Encoder Conversion Table, for channels 5-8
+I8012=$C78100     ; Entry 5 incremental encoder, no extension
+I8013=$C78108     ; Entry 6 incremental encoder, no extension
+I8014=$C78110     ; Entry 7 incremental encoder, no extension
+I8015=$C78118     ; Entry 8 incremental encoder, no extension
+
+
+; Position and Velocity feedback addresses
+I103=$3503    I104=$3503    ; Motor 1 position and velocity feedback
+I203=$3506    I204=$3506    ; Motor 2 position and velocity feedback
+I303=$3509    I304=$3509    ; Motor 3 position and velocity feedback
+I403=$350C    I404=$350C    ; Motor 4 position and velocity feedback
+I503=$350D    I504=$350D    ; Motor 5 position and velocity feedback
+I603=$350E    I604=$350E    ; Motor 6 position and velocity feedback
+I703=$350F    I704=$350F    ; Motor 7 position and velocity feedback
+I803=$3510    I804=$3510    ; Motor 8 position and velocity feedback
+
+
+
+; Motor activation and Commutation
+I100,8,100=1      ; Motors 1-2 active
+I101,4,100=1      ; Motors 1-2 Commutation Enabled (from X-register)
+
+
+; Command Output Address
+I102=$078002   ; Motor 1 Output Address
+I202=$07800A   ; Motor 2 Output Address 
+I302=$078012   ; Motor 3 Output Address 
+I402=$07801A   ; Motor 4 Output Address 
+;I502=$078102   ; Motor 5 Output Address 
+;I602=$07810A   ; Motor 6 Output Address 
+;I702=$078112   ; Motor 7 Output Address 
+;I802=$07811A   ; Motor 8 Output Address
+
+
+
+; Current Feedback, ADC Mask, Commutation angle
+I182=$078006          ; Motor 1 Current Feedback Address
+I282=$07800E          ; Motor 2 Current Feedback Address
+I382=$078016          ; Motor 3 Current Feedback Address
+I482=$07801E          ; Motor 4 Current Feedback Address
+;I582=$078106          ; Motor 5 Current Feedback Address
+;I682=$07810E          ; Motor 6 Current Feedback Address
+;I782=$078116          ; Motor 7 Current Feedback Address
+;I882=$07811E          ; Motor 8 Current Feedback Address
+I184,4,100=$FFFC00    ; Motors 1-8 Current Loop Feedback                                                         
+I172,4,100=512        ; Commutation Phase Angle.2-Phase opposite voltage & current sign (Geo Brick LV Specific)
+
+; Flag Address, Mode Control
+I125=$078000      ; Motor 1 Flag Address
+I225=$078008      ; Motor 2 Flag Address
+I325=$078010      ; Motor 3 Flag Address
+I425=$078018      ; Motor 4 Flag Address
+I525=$078100      ; Motor 5 Flag Address
+I625=$078108      ; Motor 6 Flag Address
+I725=$078110      ; Motor 7 Flag Address
+I825=$078118      ; Motor 8 Flag Address
+I124=$800401      ; Motor 1 Flag Control. High True Amp Fault, disable 3rd Harmonic 
+I224=$800401      ; Motor 2 Flag Control. High True Amp Fault, disable 3rd Harmonic 
+I324=$820401      ; Motor 3 Flag Control. High True Amp Fault, disable 3rd Harmonic 
+I424=$820401      ; Motor 4 Flag Control. High True Amp Fault, disable 3rd Harmonic 
+I524=$120401      ; Motor 5 Flag Control. Disable Amp Amp Fault, disable 3rd Harmonic 
+I624=$120401      ; Motor 6 Flag Control. Disable Amp Amp Fault, disable 3rd Harmonic 
+I724=$120401      ; Motor 7 Flag Control. Disable Amp Amp Fault, disable 3rd Harmonic 
+I824=$120401      ; Motor 8 Flag Control. Disable Amp Amp Fault, disable 3rd Harmonic
+
+
+; Commutation Address, Cycle size
+I183=$3503         ; Motor 1 on-going Commutation Address (ECT Integration Result)
+I283=$3506         ; Motor 2 on-going Commutation Address (ECT Integration Result)
+I383=$3509         ; Motor 3 on-going Commutation Address (ECT Integration Result)
+I483=$350C         ; Motor 4 on-going Commutation Address (ECT Integration Result)
+;I583=$350D         ; Motor 5 on-going Commutation Address (ECT Integration Result)
+;I683=$351E         ; Motor 6 on-going Commutation Address (ECT Integration Result)
+;I783=$351F         ; Motor 7 on-going Commutation Address (ECT Integration Result)
+;I883=$3510         ; Motor 8 on-going Commutation Address (ECT Integration Result)
+I170,4,100=1       ; Motors 1-8 Single cycle size
+I171,4,100=65536   ; Microsteps per Ixx70 commutation cycles
+
+
+
+
+
+
+
+#define ServoClk                P8003      ; [KHz] Computed in Dominant Clock Settings Section
+#define StepAngle               1.8        ; Step angle degrees -User Input
+#define MotorSpeed              500        ; motor speed spec [rpm] -User Input (a guess from plots)
+#define ElecCyclePerRev         P7004      ; Electrical Cycle Per Reolution
+ElecCyclePerRev=360/(4* StepAngle)
+#define MaxMtrSpeed P7005                  ; This is the maximum achievable motor speed
+MaxMtrSpeed=( ServoClk*1000)/( ElecCyclePerRev*6)*60
+#define CalculatedIxx69 P7006 ; Calculated Ixx69
+CalculatedIxx69= MotorSpeed*ElecCyclePerRev/60*2048/6/(ServoClk*1000)
+
+;I169,8,100=42.667         ; Motors 1 thru 8 Output Command Limit
+I169,4,100=28.443         ; Motors 1 thru 8 Output Command Limit
+
+
+
+
+
+
+// Because Bus Voltage > Motor Rated Voltage
+#define DCBusInput  48     ; DC Bus Voltage -User Input
+#define Mtr1Voltage 4.6    ; Motor 1 Rated Voltage [VDC]-User Input 
+#define Mtr2Voltage 4.6    ; Motor 2 Rated Voltage [VDC]-User Input 
+#define Mtr3Voltage 4.6    ; Motor 3 Rated Voltage [VDC]-User Input 
+#define Mtr4Voltage 4.6    ; Motor 4 Rated Voltage [VDC]-User Input 
+#define Mtr5Voltage 4.6    ; Motor 5 Rated Voltage [VDC]-User Input 
+#define Mtr6Voltage 4.6    ; Motor 6 Rated Voltage [VDC]-User Input 
+#define Mtr7Voltage 4.6    ; Motor 7 Rated Voltage [VDC]-User Input 
+#define Mtr8Voltage 4.6    ; Motor 8 Rated Voltage [VDC]-User Input
+
+;I166=I7000*Mtr1Voltage/DCBusInput    ; Motor 1 PWM Scale Factor (Geo Brick LV Specific)
+;I266=I7000*Mtr2Voltage/DCBusInput    ; Motor 2 PWM Scale Factor (Geo Brick LV Specific)
+;I366=I7000*Mtr3Voltage/DCBusInput    ; Motor 3 PWM Scale Factor (Geo Brick LV Specific)
+;I466=I7000*Mtr4Voltage/DCBusInput    ; Motor 4 PWM Scale Factor (Geo Brick LV Specific)
+;I566=I7000*Mtr5Voltage/DCBusInput    ; Motor 5 PWM Scale Factor (Geo Brick LV Specific)
+;I666=I7000*Mtr6Voltage/DCBusInput    ; Motor 6 PWM Scale Factor (Geo Brick LV Specific)
+;I766=I7000*Mtr7Voltage/DCBusInput    ; Motor 7 PWM Scale Factor (Geo Brick LV Specific)
+;I866=I7000*Mtr8Voltage/DCBusInput    ; Motor 8 PWM Scale Factor (Geo Brick LV Specific)
+
+I166,4,100=1400
+
+
+
+
+
+
+
+// I2T Protection, Magnetization Current: Ixx57, Ixx58, Ixx69, Ixx77
+I15=0                         ; Trigonometric calculation in degrees
+#define ContCurrent  0.85     ; Continuous Current Limit [Amps] –User Input
+#define PeakCurrent  2.5      ; Instantaneous Current Limit [Amps] –User Input
+#define MaxADC       33.85    ; Brick LV full range ADC reading (see electrical specifications)
+#define ServoClk     P8003    ; [KHz] Computed in Dominant Clock Settings Section
+#define I2TOnTime    1        ; Time allowed at peak Current [sec]
+#define VoltOutLimit  P7007   ; This is Ixx69 normally used in direct digital PWM
+
+I157=INT(32767*(ContCurrent*1.414/MaxADC)*cos(30))
+I177=I157/SQRT(2)
+VoltOutLimit=INT(32767*(PeakCurrent*1.414/MaxADC)*cos(30))
+I158=INT((VoltOutLimit*VoltOutLimit-I157*I157)*ServoClk*1000*I2TOnTime/(32767*32767))
+
+I257=I157
+I357=I157
+I457=I157
+;I557=I157
+;I657=I157
+;I757=I157
+;I857=I157
+
+I277=I177
+I377=I177
+I477=I177
+;I577=I177
+;I677=I177
+;I777=I177
+;I877=I177
+
+I258=I158
+I358=I158
+I458=I158
+;I558=I158
+;I658=I158
+;I758=I158
+;I858=I158
+
+
+
+
+// Phasing, Power-On Mode: Ixx80, Ixx73, Ixx74, Ixx81, Ixx91
+I180,4,100=0
+I173,4,100=0
+I174,4,100=0
+
+I181=$3503 ; Motor 1 Power-On Commutation, Integrated Output #1
+I281=$3506 ; Motor 2 Power-On Commutation, Integrated Output #2
+I381=$3509 ; Motor 3 Power-On Commutation, Integrated Output #3
+I481=$350C ; Motor 4 Power-On Commutation, Integrated Output #4
+
+;I581=$350D ; Motor 5 Power-On Commutation, Integrated Output #5
+;I681=$350E ; Motor 6 Power-On Commutation, Integrated Output #6
+;I781=$350F ; Motor 7 Power-On Commutation, Integrated Output #7
+;I881=$3510 ; Motor 8 Power-On Commutation, Integrated Output #8
+
+I191,4,100=$500000 ; Mtrs 1-8 Pwr-on Pos. format Read 16 (11+5) bits of X register Ixx81
+
+
+// Position-Loop PID Gains: Ixx30...Ixx39
+I130,4,100=1024
+I131,4,100=0
+I132,4,100=85
+I133,4,100=1024
+I134,4,100=1
+I135,4,100=0
+I136,4,100=0
+I137,4,100=0
+I138,4,100=0
+I139,4,100=0
+
+// Channels 1-4 PID Gains (with default clock settings):
+I530,4,100=11190      ; Motors 1-8 Proportional Gain
+I531,4,100=0          ; Motors 1-8 Derivative Gain
+I532,4,100=15038      ; Motors 1-8 Velocity FeedForward Gain
+I533,4,100=0          ; Motors 1-8 Integral Gain
+I534,4,100=0          ; Motors 1-8 Integral Mode
+I535,4,100=0          ; Motors 1-8 Acceleration FeedForward Gain
+
+
+// Initial current loop gais
+I161,4,100=0.04
+I162,4,100=0
+I176,4,100=0.55
+
+
+
+
+// Velocity and acceleration
+I115,4,100=1000     ; Abort deceleration rate
+I116,4,100=200        ; Max program velocity
+I117,4,100=5        ; Max program acceleration
+I119,4,100=5        ; Max home/jog acceleration
+I121,4,100=50       ; Jog/home s-curve time
+I122,4,100=200      ; Jog speed
+I123,4,100=-200     ; Home speed/direction
+
+I511,4,100=0
+I521,4,100=0
+I517,4,100=50000
+I519,4,100=50000
+I520,4,100=1
+I521,4,100=0
+I522,4,100=4000000
+
+
+
+// Position following for fake motors
+I505=$3503  I506=1
+I605=$3506  I606=1
+I705=$3509  I706=1
+I805=$350C  I806=1
+
+
+
+
+
+
+
+
+
+
+
+
+
+

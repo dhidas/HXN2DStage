@@ -1,0 +1,250 @@
+
+
+
+
+record(ao, "$(SYS){$(DEV)}XStart") {
+  field(DTYP, "stream")
+  field(EGU, "um")
+  field(OUT, "@pmac.proto setVar(P1100) $(PORT)")
+  field(FLNK, "$(SYS){$(DEV)}XStart-RB.PROC")
+}
+
+record(ai, "$(SYS){$(DEV)}XStart-RB") {
+  field(DTYP, "stream")
+  field(EGU, "um")
+  field(SCAN, "1 second")
+  field(INP, "@pmac.proto getVar(P1100) $(PORT)")
+}
+
+
+
+record(ao, "$(SYS){$(DEV)}XStop") {
+  field(DTYP, "stream")
+  field(EGU, "um")
+  field(OUT, "@pmac.proto setVar(P1101) $(PORT)")
+  field(FLNK, "$(SYS){$(DEV)}XStop-RB.PROC")
+}
+
+record(ai, "$(SYS){$(DEV)}XStop-RB") {
+  field(DTYP, "stream")
+  field(EGU, "um")
+  field(SCAN, "1 second")
+  field(INP, "@pmac.proto getVar(P1101) $(PORT)")
+}
+
+
+record(ao, "$(SYS){$(DEV)}YStart") {
+  field(DTYP, "stream")
+  field(EGU, "um")
+  field(OUT, "@pmac.proto setVar(P1102) $(PORT)")
+  field(FLNK, "$(SYS){$(DEV)}YStart-RB.PROC")
+}
+
+record(ai, "$(SYS){$(DEV)}YStart-RB") {
+  field(DTYP, "stream")
+  field(EGU, "um")
+  field(SCAN, "1 second")
+  field(INP, "@pmac.proto getVar(P1102) $(PORT)")
+}
+
+
+
+record(ao, "$(SYS){$(DEV)}YStop") {
+  field(DTYP, "stream")
+  field(EGU, "um")
+  field(OUT, "@pmac.proto setVar(P1103) $(PORT)")
+  field(FLNK, "$(SYS){$(DEV)}YStop-RB.PROC")
+}
+
+record(ai, "$(SYS){$(DEV)}YStop-RB") {
+  field(DTYP, "stream")
+  field(EGU, "um")
+  field(SCAN, "1 second")
+  field(INP, "@pmac.proto getVar(P1103) $(PORT)")
+}
+
+
+
+record(ao, "$(SYS){$(DEV)}NX") {
+  field(DTYP, "stream")
+  field(OUT, "@pmac.proto setVar(P1104) $(PORT)")
+  field(FLNK, "$(SYS){$(DEV)}NX-RB.PROC")
+}
+
+record(ai, "$(SYS){$(DEV)}NX-RB") {
+  field(DTYP, "stream")
+  field(SCAN, "1 second")
+  field(INP, "@pmac.proto getVar(P1104) $(PORT)")
+}
+
+
+record(ao, "$(SYS){$(DEV)}NY") {
+  field(DTYP, "stream")
+  field(OUT, "@pmac.proto setVar(P1105) $(PORT)")
+  field(FLNK, "$(SYS){$(DEV)}NY-RB.PROC")
+}
+
+record(ai, "$(SYS){$(DEV)}NY-RB") {
+  field(DTYP, "stream")
+  field(SCAN, "1 second")
+  field(INP, "@pmac.proto getVar(P1105) $(PORT)")
+}
+
+
+
+record(ao, "$(SYS){$(DEV)}TriggerRate") {
+  field(DTYP, "stream")
+  field(EGU, "Hz")
+  field(PREC, "1")
+  field(OUT, "@pmac.proto setVar(P1106) $(PORT)")
+  field(FLNK, "$(SYS){$(DEV)}NY-RB.PROC")
+}
+
+record(ai, "$(SYS){$(DEV)}TriggerRate-RB") {
+  field(DTYP, "stream")
+  field(EGU, "Hz")
+  field(PREC, "1")
+  field(SCAN, "1 second")
+  field(INP, "@pmac.proto getVar(P1106) $(PORT)")
+}
+
+
+
+
+
+record(dfanout, "$(SYS){$(DEV)}StartFakeScan") {
+  field(VAL, "1")
+  field(OUTA, "@pmac.proto setVar(P1110) $(PORT)")
+  field(OUTB, "$(SYS){$(DEV)}ScanInProgress.PROC")
+  field(OUTC, "$(SYS){$(DEV)}StartScan.PROC")
+}
+
+
+
+record(ao, "$(SYS){$(DEV)}SetScanning") {
+  field(DTYP, "stream")
+  field(OUT, "@pmac.proto setVar(P1110) $(PORT)")
+  field(FLNK, "$(SYS){$(DEV)}ScanInProgress.PROC")
+}
+
+
+
+
+
+record(ai, "$(SYS){$(DEV)}ScanInProgress") {
+  field(DTYP, "stream")
+  field(SCAN, "1 second")
+  field(INP, "@pmac.proto getVar(P1110) $(PORT)")
+}
+
+
+
+record(ai, "$(SYS){$(DEV)}HomeStatus-RB") {
+  field(DTYP, "stream")
+  field(SCAN, "1 second")
+  field(INP, "@pmac.proto getVar(P200) $(PORT)")
+}
+
+
+
+record(stringin, "$(SYS){$(DEV)}Home") {
+  field(DTYP, "stream")
+  field(PROC, 1)
+  field(VAL, "EnablePLC8")
+  field(INP, "@pmac.proto sendString() $(PORT)")
+}
+
+
+
+record(stringin, "$(SYS){$(DEV)}StartScan") {
+  field(DTYP, "stream")
+  field(PROC, 1)
+  field(VAL, "EnablePLC11")
+  field(INP, "@pmac.proto sendString() $(PORT)")
+}
+
+
+
+record(stringin, "$(SYS){$(DEV)}PLC20") {
+  field(DTYP, "stream")
+  field(PROC, 1)
+  field(VAL, "EnablePLC20")
+  field(INP, "@pmac.proto sendString() $(PORT)")
+}
+
+
+
+record(stringin, "$(SYS){$(DEV)}EnablePLC12") {
+  field(DTYP, "stream")
+  field(PROC, 1)
+  field(VAL, "EnablePLC12")
+  field(INP, "@pmac.proto sendString() $(PORT)")
+}
+
+
+
+record(stringin, "$(SYS){$(DEV)}ResetPMAC") {
+  field(DTYP, "stream")
+  field(PROC, 1)
+  field(VAL, "$$$")
+  field(INP, "@pmac.proto sendString() $(PORT)")
+}
+
+
+
+
+record(motor, "$(SYS){$(DEV)}X") {
+  field(DTYP, "asynMotor")
+  field(OUT, "@asyn(CoordX,6)")
+  field(EGU, "um")
+  field(DESC, "Stage Motor X")
+  field(MRES, "0.0048828125")
+  field(RTRY, "0")
+  field(NTM, "NO")
+  field(VELO, "100")
+  field(ACCL, "100000")
+  field(PREC, "1")
+}
+
+record(motor, "$(SYS){$(DEV)}Y") {
+  field(DTYP, "asynMotor")
+  field(OUT, "@asyn(CoordY,7)")
+  field(EGU, "um")
+  field(DESC, "Stage Motor Y")
+  field(MRES, "0.0048828125")
+  field(RTRY, "0")
+  field(NTM, "NO")
+  field(VELO, "100")
+  field(ACCL, "100000")
+  field(PREC, "1")
+}
+
+
+
+
+
+record(motor, "$(SYS){$(DEV)}VX") {
+  field(DTYP, "asynMotor")
+  field(OUT, "@asyn(CoordVX,6)")
+  field(EGU, "um")
+  field(DESC, "Stage Virtual Motor X")
+  field(MRES, "0.0048828125")
+  field(RTRY, "0")
+  field(NTM, "NO")
+  field(VELO, "100")
+  field(ACCL, "100000")
+  field(PREC, "1")
+}
+
+record(motor, "$(SYS){$(DEV)}VY") {
+  field(DTYP, "asynMotor")
+  field(OUT, "@asyn(CoordVY,7)")
+  field(EGU, "um")
+  field(DESC, "Stage Virtual Motor Y")
+  field(MRES, "0.0048828125")
+  field(RTRY, "0")
+  field(NTM, "NO")
+  field(VELO, "100")
+  field(ACCL, "100000")
+  field(PREC, "1")
+}

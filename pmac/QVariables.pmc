@@ -1,0 +1,73 @@
+// PMAC kinematics use Q variables (reserved variables)
+#define   Q_A_kinPos    Q1
+#define   Q_B_kinPos    Q2
+#define   Q_C_kinPos    Q3
+#define   Q_U_kinPos    Q4
+#define   Q_V_kinPos    Q5
+#define   Q_W_kinPos    Q6
+#define   Q_X_kinPos    Q7
+#define   Q_Y_kinPos    Q8
+#define   Q_Z_kinPos    Q9
+
+// PMAC reserved Q variables
+// Q11..Q19
+
+// Axis demand position from EPICS
+// Q71..Q79
+#define Q_A_KinDemandPos  Q71
+#define Q_B_KinDemandPos  Q72
+#define Q_C_KinDemandPos  Q73
+#define Q_U_KinDemandPos  Q74
+#define Q_V_KinDemandPos  Q75
+#define Q_W_KinDemandPos  Q76
+#define Q_X_KinDemandPos  Q77
+#define Q_Y_KinDemandPos  Q78
+#define Q_Z_KinDemandPos  Q79
+
+// Position reporting axis readback position for EPICS
+// (A,B,C,U,V,W,X,Y,Z) Q81..Q89
+#define Q_A_kinPos_PR   Q81
+#define Q_B_kinPos_PR   Q82
+#define Q_C_kinPos_PR   Q83
+#define Q_U_kinPos_PR   Q84
+#define Q_V_kinPos_PR   Q85
+#define Q_W_kinPos_PR   Q86
+#define Q_X_kinPos_PR   Q87
+#define Q_Y_kinPos_PR   Q88
+#define Q_Z_kinPos_PR   Q89
+
+
+// PMAC reserved Q variables for passing subprogram arguments
+// Q100..Q127
+
+// Forward kinematics temp Q variables
+// Q128..Q199
+#define Q_Fwd_Mtr1Tmp   Q128
+#define Q_Fwd_Mtr2Tmp   Q129
+#define Q_Fwd_Mtr3Tmp   Q130
+#define Q_Fwd_Mtr4Tmp   Q131
+
+#define Q_Fwd_Mtr5Tmp   Q132
+#define Q_Fwd_Mtr6Tmp   Q133
+#define Q_Fwd_Mtr7Tmp   Q134
+#define Q_Fwd_Mtr8Tmp   Q135
+
+// Inverse kinematics temp Q variables
+// Q228..Q299
+#define Q_Inv_Mtr1Tmp   Q228
+#define Q_Inv_Mtr2Tmp   Q229
+#define Q_Inv_Mtr3Tmp   Q230
+
+// Position reporting plc temp Q variables
+#define Q_Fwd_Mtr1Tmp_PR  Q328
+#define Q_Fwd_Mtr2Tmp_PR  Q329
+#define Q_Fwd_Mtr3Tmp_PR  Q330
+#define Q_Fwd_Mtr4Tmp_PR  Q331
+//
+#define Q_Fwd_Mtr5Tmp_PR  Q332
+#define Q_Fwd_Mtr6Tmp_PR  Q333
+#define Q_Fwd_Mtr7Tmp_PR  Q334
+#define Q_Fwd_Mtr8Tmp_PR  Q335
+
+// Backlash settings Q variables
+// Q400..Q439

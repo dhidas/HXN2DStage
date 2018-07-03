@@ -1,0 +1,25 @@
+
+
+Open PLC 11 Clear
+
+; P1100..1107 are used by the motion program and EPICS for input
+; P1110 Is the Error status
+
+P1110 = 0     ; No error
+
+if (M145=1)
+and (M245=1)
+
+  CMD "&2 #1->I #2->I"
+  I5612 = 20 * 8388608/I10 While(I5612 > 0)EndW
+  CMD "&2B11R"
+  I5612 = 20 * 8388608/I10 While(I5612 > 0)EndW
+Else
+  P1110 = 1   ; Motor not homed
+endif
+
+disable plc 11
+close
+
+
+
